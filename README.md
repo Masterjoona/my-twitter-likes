@@ -30,6 +30,12 @@ Firstly you need to generate a json for the website to use.
 > [!TIP]
 > To get around 15k likes took me around 4 minutes
 
+## why like this
+
+cors
+
+proxy? i dont want to people give me their auth tokens and stuff obviously
+
 ## notes
 
 - you can't see media of quoted tweets since their data is not in the response
