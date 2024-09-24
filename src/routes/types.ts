@@ -64,6 +64,9 @@ export interface Tweet {
     retweeted: boolean
     user_id_str: string
     id_str: string
+
+    // added by us
+    quoted_status_result?: Tweet
 }
 
 export interface Entities {
