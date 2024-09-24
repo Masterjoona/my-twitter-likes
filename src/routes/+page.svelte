@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-
 	import RenderTweet from './RenderTweet.svelte';
 	import type { Author, Tweet } from './types';
 
@@ -40,31 +39,53 @@
 
 	const resetDisplay = () => {
 		currentBatch = 1;
-		displayedTweets = tweets.slice(0, batchSize);
+		loadTweets();
 	};
 
-	const loadMoreTweets = () => {
-		const start = currentBatch * batchSize;
-		const end = start + batchSize;
+	const isRegex = (query: string): boolean => {
+		return query.startsWith('/') && query.lastIndexOf('/') > 0;
+	};
 
-		const filteredTweets =
-			searchQuery.length >= 3
-				? tweets.filter(
-						(tweet) =>
-							tweet?.full_text?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-							tweet?.id_str.includes(searchQuery)
-					)
-				: tweets;
+	const applySearchFilter = (): Tweet[] => {
+		if (searchQuery.length < 3) return tweets;
 
-		const nextBatch = filteredTweets.slice(start, end);
-		displayedTweets = [...displayedTweets, ...nextBatch];
+		if (isRegex(searchQuery)) {
+			try {
+				const lastSlash = searchQuery.lastIndexOf('/');
+				const flags = searchQuery.slice(lastSlash + 1);
+				const toRegex = searchQuery.slice(1, lastSlash);
+				console.log('Regex:', toRegex, flags);
+				const regex = new RegExp(toRegex, flags);
+				return tweets.filter((tweet) => regex.test(tweet?.full_text));
+			} catch (error) {
+				console.error('Invalid regex:', error);
+				return [];
+			}
+		} else {
+			return tweets.filter((tweet) =>
+				tweet?.full_text?.toLowerCase().includes(searchQuery.toLowerCase())
+			);
+		}
+	};
+
+	const loadTweets = () => {
+		const filteredTweets = applySearchFilter();
+		const start = (currentBatch - 1) * batchSize;
+		const nextBatch = filteredTweets.slice(start, start + batchSize);
+
+		if (currentBatch === 1) {
+			displayedTweets = nextBatch;
+		} else {
+			displayedTweets = [...displayedTweets, ...nextBatch];
+		}
+
+		searchMatching = filteredTweets.length;
 		if (nextBatch.length > 0) currentBatch += 1;
 	};
 
 	const handleScroll = () => {
 		if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 500) {
-			console.log('loading more tweets');
-			loadMoreTweets();
+			loadTweets();
 		}
 	};
 
@@ -75,20 +96,10 @@
 
 	const handleSearch = () => {
 		clearTimeout(timeout);
-		if (searchQuery.length < 3) {
-			resetDisplay();
-			return;
-		}
-		timeout = setTimeout(() => filterTweets(), 300);
-	};
-
-	const filterTweets = () => {
-		const filteredTweets = tweets.filter((tweet) =>
-			tweet?.full_text?.toLowerCase().includes(searchQuery.toLowerCase())
-		);
-		searchMatching = filteredTweets.length;
-		displayedTweets = filteredTweets.slice(0, batchSize);
-		currentBatch = 1;
+		timeout = setTimeout(() => {
+			currentBatch = 1;
+			loadTweets();
+		}, 300);
 	};
 
 	const lookUpAuthor = (userId: string) => authors[userId];
@@ -107,6 +118,7 @@
 		bind:value={searchQuery}
 		on:input={handleSearch}
 	/>
+	<span> (use /regex/flags for regex search)</span>
 
 	{#if searchMatching > 0}
 		<p>Showing {displayedTweets.length} of {searchMatching} matching tweets</p>
