@@ -6,19 +6,11 @@ I like a lot a of art tweets, and sometimes i want to go back to them, but i can
 
 Firstly you need to generate a json for the website to use.
 
-1. Go to twitter and open developer tools (F12)
-2. Go to your likes page
-3. Go to the network tab
-4. Filter by `Likes?`
-5. Right click on the request and copy as cURL (bash)
-6. go [here](https://curlconverter.com/javascript/) and convert the cURL to javascript
-7. Copy it and paste over the comment inside the `makeajson.js` file
-
-   Like the comment says replace the `fetch` with `new Request`
-
-8. Run the script with `node makeajson.js`
-9. You will now (hopefully) have a `minified_likes.json` file
-10. You can now either run the website or use my [website](https://xitterlikes.masterjoona.dev)
+1. Go to [twitter.com](https://twitter.com) and open developer tools (F12)
+2. copy and paste the script [pasteme.js](/pasteme.js) to the console and press enter
+3. Now go the likes page and wait until the script finishes, it will download the json automatically
+4. You will now (hopefully) have a `liked_tweets.json` file
+5. You can now either run this website or use my [website](https://xitterlikes.masterjoona.dev) to view them
 
 > [!NOTE]
 > Everything happens on client, you can be sure that i can't see your likes
@@ -30,15 +22,8 @@ Firstly you need to generate a json for the website to use.
 > [!TIP]
 > To get around 15k likes took me around 4 minutes
 
-## why like this
-
-cors
-
-proxy? i dont want to people give me their auth tokens and stuff obviously
-
 ## notes
 
-- you can't see media of quoted tweets since their data is not in the response
 - you might see tweets that says `liked: no` but this is just twitter insanity
 - use the search bar instead of ctrl+f since the tweets are lazy loaded
 
